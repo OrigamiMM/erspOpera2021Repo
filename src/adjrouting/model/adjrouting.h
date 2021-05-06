@@ -16,6 +16,7 @@
 #include "ns3/data-rate.h"
 #include "ns3/nstime.h"
 #include "ns3/event-id.h"
+#include "ns3/simulator.h"
 #include <map>
 #include <vector>
 
@@ -62,7 +63,7 @@ namespace ns3 {
         *
         * \returns a code that indicates what happened in the lookup
         */
-        virtual Ptr<Ipv4Route> RouteOutput (Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr) = 0;
+        virtual Ptr<Ipv4Route> RouteOutput (Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr);
 
         /**
         * \brief Route an input packet (to be forwarded or locally delivered)
@@ -87,7 +88,7 @@ namespace ns3 {
         */ 
         virtual bool RouteInput  (Ptr<const Packet> p, const Ipv4Header &header, Ptr<const NetDevice> idev, 
                                     UnicastForwardCallback ucb, MulticastForwardCallback mcb,
-                                    LocalDeliverCallback lcb, ErrorCallback ecb) = 0;
+                                    LocalDeliverCallback lcb, ErrorCallback ecb);
 
         virtual void NotifyInterfaceUp (uint32_t interface);
     
@@ -99,14 +100,21 @@ namespace ns3 {
 
         virtual void SetIpv4 (Ptr<Ipv4> ipv4);
 
-        virtual void PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S);
+        virtual void PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S) const;
 
         virtual void DoDispose (void);
 
         void AddRoute (Ipv4Address network, Ipv4Mask networkMask, uint32_t port);
 
+        Ptr<Ipv4Route> ConstructIpv4Route (uint32_t port, Ipv4Address destAddress);
+
+        std::vector<AdjRoutingEntry> LookupAdjRoutingEntriesIP(Ipv4Address dest);
+
+        std::vector<AdjRoutingEntry> LookupAdjRoutingEntries(Ipv4Address dest);
+
     private:
         std::vector<AdjRoutingEntry> m_routeEntryList;
+        Ipv4Address m_addr;
     };
 
 }

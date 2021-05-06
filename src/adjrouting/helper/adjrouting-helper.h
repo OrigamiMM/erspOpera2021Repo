@@ -7,7 +7,7 @@
 
 namespace ns3 {
 
-    /*class Ipv4AdjRoutingHelper : public Ipv4RoutingHelper
+    class Ipv4AdjRoutingHelper : public Ipv4RoutingHelper
     {
         public:
             Ipv4AdjRoutingHelper ();
@@ -19,8 +19,8 @@ namespace ns3 {
             virtual Ptr<Ipv4RoutingProtocol> Create (Ptr<Node> node) const;
 
             Ptr<Ipv4AdjRouting> GetAdjRouting (Ptr<Ipv4> ipv4) const;
-        }; */
-
+        }; 
+    
 }
 
 #endif /* ADJROUTING_HELPER_H */

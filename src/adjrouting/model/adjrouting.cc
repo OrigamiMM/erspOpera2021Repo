@@ -24,21 +24,49 @@ namespace ns3 {
     bool Ipv4AdjRouting::RouteInput  (Ptr<const Packet> p, const Ipv4Header &header, Ptr<const NetDevice> idev, UnicastForwardCallback ucb, MulticastForwardCallback mcb,
                                 LocalDeliverCallback lcb, ErrorCallback ecb)
     {
+        /*
         //work with ucb (callback for packets forwarded as unicast)
         
+        Ipv4Header headerPrime = header;
 
+        Ptr<Packet> packet = ConstCast<Packet>(p);
+        Ipv4Address destAddress = headerPrime.GetDestination();
         
-        //Ipv4Header headerPrime = header;
-
-        //Ptr<Packet> packet = ConstCast<Packet>(p);
-        //Ipv4Address destAddress = headerPrime.GetDestination();
-        // Ptr<Ipv4Route> route = Ipv4DoppelgangerRouting::ConstructIpv4Route(selectedPort, destAddress); ???
-
         //ucb(route, packet, header);
         printf("ROUTE INPUT\n");
-        return true;
-        
+
+
+        //stew code
+        // Packet arrival time
+        Time now = ns3::Simulator::Now();
+        std::vector<AdjRoutingEntry> routeEntries = LookupAdjRoutingEntriesIP(destAddress);
+        //Find routing entry for the given IP
+        if (routeEntries.size() > 0)
+        {
+            //NS_LOG_WARN("Host: " << stringIP(m_addr.Get()) << " Entry Hit for " << stringIP(destAddress.Get()) << " Found " << routeEntries.size() << " Entries");
+        }
+        else
+        {
+            //NS_LOG_WARN("Host: " << stringIP(m_addr.Get()) << " Entries MISS for " << stringIP(destAddress.Get()));
+            return false;
+        }
+
+        //Ecmp
+        uint32_t selectedPort = routeEntries[rand() % routeEntries.size()].port;
+
+        //NS_LOG_WARN("Host: " << stringIP(m_addr.Get()) << " Setting up route for dest address " << stringIP(header.GetDestination().Get()) << " port " << selectedPort);
+        Ptr<Ipv4Route> route = Ipv4AdjRouting::ConstructIpv4Route(selectedPort, destAddress);
+
+        //Check channel state (compile error)
+        //Ptr<Channel> chan = idev->GetChannel();
+
+        //ucb (route, packet, header);
+        ucb(route, packet, headerPrime); */
+
+        printf("ROUTE INPUT May 6th\n");
+        return true;    
     }
+
 
     Ptr<Ipv4Route> Ipv4AdjRouting::RouteOutput (Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
     {
@@ -87,7 +115,7 @@ namespace ns3 {
         return;
     } 
 
-    void Ipv4AdjRouting::PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit unit)
+    void Ipv4AdjRouting::PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
     {
         printf("Print Routing Table");
         return;
@@ -103,7 +131,6 @@ namespace ns3 {
         m_dreEvent.Cancel();
         m_agingEvent.Cancel();
         m_ipv4 = 0;*/
-
         
         Ipv4RoutingProtocol::DoDispose();
         printf("DoDispose");
@@ -116,8 +143,35 @@ namespace ns3 {
         adjroutingentry.networkMask = networkMask;
         adjroutingentry.port = port;
         m_routeEntryList.push_back(adjroutingentry);
+        
     }
 
 
-}
+    std::vector<AdjRoutingEntry>
+    Ipv4AdjRouting::LookupAdjRoutingEntries(Ipv4Address dest){
+        std::vector<AdjRoutingEntry> AdjRoutingEntries;
+        std::vector<AdjRoutingEntry>::iterator itr = m_routeEntryList.begin();
+        
+        for (; itr != m_routeEntryList.end(); ++itr){
+            if ((*itr).networkMask.IsMatch(dest, (*itr).network)){
+                AdjRoutingEntries.push_back(*itr);
+            }
+        }
+        return AdjRoutingEntries;
+    }
 
+    std::vector<AdjRoutingEntry>
+    Ipv4AdjRouting::LookupAdjRoutingEntriesIP(Ipv4Address dest){
+        
+        std::vector<AdjRoutingEntry> AdjRouteEntries;
+        std::vector<AdjRoutingEntry>::iterator itr = m_routeEntryList.begin();
+        
+        for (; itr != m_routeEntryList.end(); ++itr){
+            if (dest.Get() == (*itr).network.Get()){
+                AdjRouteEntries.push_back(*itr);
+            }
+        }
+        return AdjRouteEntries;
+    }
+
+}

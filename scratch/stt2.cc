@@ -25,6 +25,65 @@ Ptr<Ipv4AdjRouting> GetAdjRouter(Ptr<Node> node)
   return router;
 }
 
+static void AddInternetStack(Ptr<Node> node)
+{
+
+  ObjectFactory m_tcpFactory;
+  
+  //compile error
+  //Ipv4RoutingHelper *m_routing;
+
+  m_tcpFactory.SetTypeId("ns3::TcpL4Protocol");
+  Ipv4StaticRoutingHelper staticRouting;
+  Ipv4GlobalRoutingHelper globalRouting;
+
+  //Ipv4DoppelgangerRoutingHelper doppelgangerRouting;
+  Ipv4AdjRoutingHelper adjRouting;
+
+
+  Ipv4ListRoutingHelper listRouting;
+
+  //The entire point of this routine is to add this call
+  //listRouting.Add(doppelgangerRouting, 1);
+  listRouting.Add(adjRouting, 1);
+
+
+  //Change complete
+  listRouting.Add(staticRouting, 0);
+  listRouting.Add(globalRouting, -10);
+  
+  // compile error 
+  //m_routing = listRouting.Copy();
+
+  if (node->GetObject<Ipv4>() != 0)
+  {
+    NS_FATAL_ERROR("InternetStackHelper::Install (): Aggregating "
+                   "an InternetStack to a node with an existing Ipv4 object");
+    return;
+  }
+
+  //CreateAndAggregateObjectFromTypeId(node, "ns3::ArpL3Protocol");
+  //CreateAndAggregateObjectFromTypeId(node, "ns3::Ipv4L3Protocol");
+  //CreateAndAggregateObjectFromTypeId(node, "ns3::Icmpv4L4Protocol");
+
+  // Set routing
+  //Ptr<Ipv4> ipv4 = node->GetObject<Ipv4>();
+  //Ptr<Ipv4RoutingProtocol> ipv4Routing = m_routing->Create(node);
+  //ipv4->SetRoutingProtocol(ipv4Routing);
+
+  /*CreateAndAggregateObjectFromTypeId(node, "ns3::TrafficControlLayer");
+  CreateAndAggregateObjectFromTypeId(node, "ns3::UdpL4Protocol");
+  node->AggregateObject(m_tcpFactory.Create<Object>());
+  Ptr<PacketSocketFactory> factory = CreateObject<PacketSocketFactory>();
+  node->AggregateObject(factory);
+
+  Ptr<ArpL3Protocol> arp = node->GetObject<ArpL3Protocol>();
+  Ptr<TrafficControlLayer> tc = node->GetObject<TrafficControlLayer>();
+  NS_ASSERT(arp);
+  NS_ASSERT(tc);
+  arp->SetTrafficControl(tc);*/
+
+}
 
 int main(int argc, char *argv[]){
     
@@ -48,17 +107,32 @@ int main(int argc, char *argv[]){
     nodes.Create(4);
 
     // server 1 to client 1 and client 2
+    //NodeContainer ser1toclients[2];
+    //ser1toclients[0] = NodeContainer(nodes.Get(0), nodes.Get(2));
+    //ser1toclients[0] = NodeContainer(nodes.Get(0), nodes.Get(2));
+    //ser1toclients[1] = NodeContainer(nodes.Get(0), nodes.Get(3));
     NodeContainer ser1toclients[2];
     ser1toclients[0] = NodeContainer(nodes.Get(0), nodes.Get(2));
-    ser1toclients[1] = NodeContainer(nodes.Get(0), nodes.Get(3));
+    ser1toclients[0] = NodeContainer(nodes.Get(0), nodes.Get(3));
 
     // server 2 to client 1 and client 2
     NodeContainer ser2toclients[2];
     ser2toclients[0] = NodeContainer(nodes.Get(1), nodes.Get(2));
     ser2toclients[1] = NodeContainer(nodes.Get(1), nodes.Get(3));
 
+
+
+    //not our code
     InternetStackHelper internet;
     internet.Install(nodes);
+
+    AddInternetStack(nodes.Get(0));
+    AddInternetStack(nodes.Get(1));
+    AddInternetStack(nodes.Get(2));
+    AddInternetStack(nodes.Get(3));
+
+
+
     
     PointToPointHelper pointToPoint;
     pointToPoint.SetDeviceAttribute("DataRate", StringValue ("5Mbps"));
@@ -88,47 +162,37 @@ int main(int argc, char *argv[]){
     
     //int index = 0;
 
-
-
-
-
-
     //need to implement AddRoute
 
     //Add Route Ipv4Address network, Ipv4Mask networkMask, uint32_t port 
-    // Ptr<Ipv4AdjRoutingHelper> router = GetAdjRouter(nodes.Get(0));
-    // router->AddRoute(Ipv4Address("10.1.1.0"), Ipv4Mask("255.255.255.0"), 9);
+    Ptr<Ipv4AdjRouting> router = GetAdjRouter(nodes.Get(0));
+    router->AddRoute(Ipv4Address("10.1.1.0"), Ipv4Mask("255.255.255.0"), 9);
 
-    // Ptr<Ipv4AdjRoutingHelper> router = GetAdjRouter(nodes.Get(1));
-    // router->AddRoute(Ipv4Address("10.1.2.0"), Ipv4Mask("255.255.255.0"), 9);
+    router = GetAdjRouter(nodes.Get(1));
+    router->AddRoute(Ipv4Address("10.1.2.0"), Ipv4Mask("255.255.255.0"), 9);
 
-    // Ptr<Ipv4AdjRoutingHelper> router = GetAdjRouter(nodes.Get(2));
-    // router->AddRoute(Ipv4Address("10.1.3.0"), Ipv4Mask("255.255.255.0"), 9);
+    router = GetAdjRouter(nodes.Get(2));
+    router->AddRoute(Ipv4Address("10.1.3.0"), Ipv4Mask("255.255.255.0"), 9);
 
-    // Ptr<Ipv4AdjRoutingHelper> router = GetAdjRouter(nodes.Get(3));
-    // router->AddRoute(Ipv4Address("10.1.4.0"), Ipv4Mask("255.255.255.0"), 9);
+    router = GetAdjRouter(nodes.Get(3));
+    router->AddRoute(Ipv4Address("10.1.4.0"), Ipv4Mask("255.255.255.0"), 9);
 
+    // //OLD CODE
+    // // node 0 to node 2
+    // address.SetBase("10.1.1.0", "255.255.255.0");
+    // addressArray[0] = address.Assign(layer1[0]);
 
+    // //node 0 to node 3
+    // address.SetBase("10.1.2.0", "255.255.255.0");
+    // addressArray[1] = address.Assign(layer1[1]);
 
+    // // node 1 to node 2
+    // address.SetBase("10.1.3.0", "255.255.255.0");
+    // addressArray[2] = address.Assign(layer2[0]);
 
-    //OLD CODE
-    // node 0 to node 2
-    address.SetBase("10.1.1.0", "255.255.255.0");
-    addressArray[0] = address.Assign(layer1[0]);
-
-    //node 0 to node 3
-    address.SetBase("10.1.2.0", "255.255.255.0");
-    addressArray[1] = address.Assign(layer1[1]);
-
-    // node 1 to node 2
-    address.SetBase("10.1.3.0", "255.255.255.0");
-    addressArray[2] = address.Assign(layer2[0]);
-
-    // node 1 to node 3
-    address.SetBase("10.1.4.0", "255.255.255.0");
-    addressArray[3] = address.Assign(layer2[1]);
-
-
+    // // node 1 to node 3
+    // address.SetBase("10.1.4.0", "255.255.255.0");
+    // addressArray[3] = address.Assign(layer2[1]);
 
     //everything after here is okay
 

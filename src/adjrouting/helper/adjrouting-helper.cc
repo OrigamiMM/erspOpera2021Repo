@@ -4,8 +4,8 @@
 #include "ns3/log.h"
 
 namespace ns3 {
-
-    /*NS_LOG_COMPONENT_DEFINE("Ipv4AdjRoutingHelper");
+    
+    NS_LOG_COMPONENT_DEFINE("Ipv4AdjRoutingHelper");
 
     Ipv4AdjRoutingHelper::Ipv4AdjRoutingHelper ()
     {
@@ -16,7 +16,7 @@ namespace ns3 {
     {
         //NS_LOG_FUNCTION(this);
     }
-    
+
     Ipv4AdjRoutingHelper* 
     Ipv4AdjRoutingHelper::Copy (void) const
     {
@@ -39,7 +39,7 @@ namespace ns3 {
             return DynamicCast<Ipv4AdjRouting> (ipv4rp); 
         }
         return 0;
-    } */
-
+    } 
+    
 }
 

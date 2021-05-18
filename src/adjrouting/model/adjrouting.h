@@ -2,7 +2,15 @@
 #ifndef ADJROUTING_H
 #define ADJROUTING_H
 
-#include <list>
+#include "ns3/ipv4-routing-protocol.h"
+#include "ns3/ipv4-route.h"
+#include "ns3/object.h"
+#include "ns3/packet.h" 
+#include "ns3/ipv4-header.h"
+#include "ns3/data-rate.h"
+#include "ns3/nstime.h"
+#include "ns3/event-id.h"
+
 #include <stdint.h>
 #include "ns3/ipv4-address.h"
 #include "ns3/ipv4-header.h"
@@ -17,8 +25,8 @@
 #include "ns3/nstime.h"
 #include "ns3/event-id.h"
 #include "ns3/simulator.h"
-#include <map>
-#include <vector>
+
+#include "ns3/adjmatrix-module.h"
 
 namespace ns3 {
     
@@ -112,9 +120,12 @@ namespace ns3 {
 
         std::vector<AdjRoutingEntry> LookupAdjRoutingEntries(Ipv4Address dest);
 
+        void initMatrix(const char* filename);
+
     private:
         std::vector<AdjRoutingEntry> m_routeEntryList;
         Ipv4Address m_addr;
+        AdjMatrices m_adjmatrix;
     };
 
 }

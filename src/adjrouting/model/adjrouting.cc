@@ -2,10 +2,18 @@
 
 #include "adjrouting.h"
 #include "ns3/log.h"
+#include "ns3/simulator.h"
+#include "ns3/net-device.h"
+#include "ns3/channel.h"
+#include "ns3/node.h"
+#include "ns3/flow-id-tag.h"
+
+#include "ns3/adjmatrix-module.h"
+
 
 namespace ns3 {
 
-    NS_LOG_COMPONENT_DEFINE("Ipv4AdjRouting");
+    NS_LOG_COMPONENT_DEFINE("Ipv4AdjRouting"); 
     NS_OBJECT_ENSURE_REGISTERED(Ipv4AdjRouting);
 
     Ipv4AdjRouting::Ipv4AdjRouting() {
@@ -15,11 +23,6 @@ namespace ns3 {
     Ipv4AdjRouting::~Ipv4AdjRouting(){
         NS_LOG_FUNCTION(this);
     }
-
-    /*bool Ipv4AdjRouting::Stew(void) {
-        printf("I'm not virtual i'm digital\n");
-        return false;
-    }*/
 
     bool Ipv4AdjRouting::RouteInput  (Ptr<const Packet> p, const Ipv4Header &header, Ptr<const NetDevice> idev, UnicastForwardCallback ucb, MulticastForwardCallback mcb,
                                 LocalDeliverCallback lcb, ErrorCallback ecb)
@@ -63,22 +66,27 @@ namespace ns3 {
         //ucb (route, packet, header);
         ucb(route, packet, headerPrime); */
 
-        printf("ROUTE INPUT May 6th\n");
+        printf("ROUTE INPUT May 17th\n");
         return true;    
     }
 
-
+ 
     Ptr<Ipv4Route> Ipv4AdjRouting::RouteOutput (Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
     {
-        printf("ROUTING OUTPUT");
+        printf("ROUTING OUTPUT\n");
+
+        vector<vector<int>> uselessMatrix =  m_adjmatrix.getMatchingIndex(Simulator::Now().GetNanoSeconds());
+        m_adjmatrix.printCurrentMatching();
+
         return NULL;
     }  
 
     TypeId Ipv4AdjRouting::GetTypeId(void)
     {
-        TypeId tid = TypeId("ns3::Ipv4AdjRouting")
+        static TypeId tid = TypeId("ns3::Ipv4AdjRouting")
                                 .SetParent<Object>()
-                                .SetGroupName("Internet");
+                                .SetGroupName("Internet")
+                                .AddConstructor<Ipv4AdjRouting>();
 
         return tid;
     }
@@ -86,38 +94,38 @@ namespace ns3 {
     
     void Ipv4AdjRouting::NotifyInterfaceUp(uint32_t interface)
     {
-        printf("NotifyInterfaceUp");
+        printf("NotifyInterfaceUp\n");
         return;
     }
 
     void Ipv4AdjRouting::NotifyInterfaceDown(uint32_t interface)
     {
-        printf("NotifyInterfaceDown");
+        printf("NotifyInterfaceDown\n");
         return;
     }
 
     void Ipv4AdjRouting::NotifyAddAddress(uint32_t interface, Ipv4InterfaceAddress address)
     {
-        printf("NotifyAddAddress");
+        printf("NotifyAddAddress\n");
         return;
     }
 
     void Ipv4AdjRouting::NotifyRemoveAddress(uint32_t interface, Ipv4InterfaceAddress address)
     {
-        printf("Notify Remove Address");
+        printf("Notify Remove Address\n");
         return;
     }
 
     void Ipv4AdjRouting::SetIpv4(Ptr<Ipv4> ipv4)
     {
         //NS_LOG_LOGIC(this << "Setting up Ipv4: " << ipv4);
-        printf("SetIpv4");
+        printf("SetIpv4\n");
         return;
     } 
 
     void Ipv4AdjRouting::PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
     {
-        printf("Print Routing Table");
+        printf("Print Routing Table\n");
         return;
     }
 
@@ -133,7 +141,7 @@ namespace ns3 {
         m_ipv4 = 0;*/
         
         Ipv4RoutingProtocol::DoDispose();
-        printf("DoDispose");
+        printf("DoDispose\n");
         return;
     }
 
@@ -172,6 +180,11 @@ namespace ns3 {
             }
         }
         return AdjRouteEntries;
+    }
+
+    void Ipv4AdjRouting::initMatrix (const char* filename){
+        //m_adjmatrix = AdjMatrices::AdjMatrices();
+        m_adjmatrix = AdjMatrices(filename);
     }
 
 }

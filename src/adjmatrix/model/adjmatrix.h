@@ -4,7 +4,7 @@
 
 #include <vector>
 #include <unordered_set>
-#include <string>
+#include <string> 
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -17,7 +17,7 @@ namespace ns3 {
         private:
             int portCount;
             int size;
-            const int64_t rotationTime = 3500;
+            int64_t rotationTime = 3500;
             vector<vector<vector<int>>> matchesArray;
             void createMatrix(string line);
             int currentMatchingIndex;
@@ -28,6 +28,7 @@ namespace ns3 {
             * @param matchinglist_csv Input CSV file to be read 
             */
 
+            AdjMatrices();
             AdjMatrices(const char* matchinglist_csv);
 
             void getMatrixSize(string line);
@@ -53,6 +54,8 @@ namespace ns3 {
             int getRotationTime();
 
             int getCurrentIndex();
+
+            vector<vector<int>> getMatchingIndex(uint64_t nanoseconds);
     };
 
 }

@@ -2,7 +2,7 @@
 
 #include "adjrouting-helper.h"
 #include "ns3/log.h"
-
+ 
 namespace ns3 {
     
     NS_LOG_COMPONENT_DEFINE("Ipv4AdjRoutingHelper");
@@ -27,6 +27,7 @@ namespace ns3 {
     Ipv4AdjRoutingHelper::Create (Ptr<Node> node) const
     {
         Ptr<Ipv4AdjRouting> adjRouting = CreateObject<Ipv4AdjRouting> ();
+        adjRouting->initMatrix("test.csv");
         return adjRouting;
     }
 
@@ -38,7 +39,7 @@ namespace ns3 {
         {
             return DynamicCast<Ipv4AdjRouting> (ipv4rp); 
         }
-        return 0;
+        return 0; 
     } 
     
 }

@@ -61,6 +61,10 @@ namespace ns3 {
         currentMatchingIndex = 0;
     }
 
+    AdjMatrices::AdjMatrices(){
+        printf("Default Constructor\n");
+    }
+
 
 
     //Takes in a line of csv file and a size
@@ -79,6 +83,7 @@ namespace ns3 {
             matrix[source][dest] = 1;
         }
 
+        printf("Created Matrix\n");
         matchesArray.push_back(matrix);
     }
 
@@ -142,6 +147,12 @@ namespace ns3 {
         }
     }
 
+    vector<vector<int>> AdjMatrices::getMatchingIndex(uint64_t nanoseconds){
+        int index = (nanoseconds / rotationTime) % matchesArray.size();
+        currentMatchingIndex = index;
+        return matchesArray[index];
+    }
+
 
     bool AdjMatrices::correctMatchingTimeCheck(int64_t targetTime){
         //Matching changes every 3500 nanoseconds.
@@ -165,8 +176,7 @@ namespace ns3 {
             cout << "Incorrect matching at current time" << endl;
             return false;
         }
-
-        
+   
     }
 
     void AdjMatrices::printCurrentMatching(){
